@@ -38,7 +38,7 @@ class User(db.Model):
 class Log(db.Model):
     log_id = db.Column(db.Integer, primary_key = True)
     log_email = db.Column(db.String(70))
-    log_logdate = db.Column(db.String(80))
+    log_date = db.Column(db.String(80))
 
 class Strain(db.Model):
     strain_id = db.Column(db.Integer, primary_key=True)
@@ -87,6 +87,9 @@ class Concentrate(db.Model):
     concentrate_flavors = db.Column(db.Text)
     concentrate_description = db.Column(db.Text)
 
+
+# with app.app_context():
+#     db.create_all()
 
 # Funcion para obtener los datos del usuario
 def get_user_info():
@@ -161,8 +164,8 @@ def login():
     if check_password_hash(user.user_password, auth.get('password')):
         user_info = get_user_info()
         token = jwt.encode({
-            'user': request.form['name'],
-            'expiration': str(datetime.utcnow() + timedelta(seconds=120)),
+            'user': request.form['username'],
+            'expiration': str(datetime.utcnow() + timedelta(minutes=10)),
             'user_os': user_info['os'],
             'user_browser': user_info['browser']
         },
@@ -188,7 +191,7 @@ def register():
         )
         log = Log(
             log_email = email,
-            log_logdate = datetime.now())
+            log_date = datetime.now())
         # insert user
         db.session.add(user)
         db.session.add(log)
@@ -233,7 +236,7 @@ def get_data():
     return jsonify(data)
 
 @app.route("/awards", methods =['GET'])
-@token_required
+# @token_required
 def awards():
     awards = Award.query.all()
     data = {
@@ -246,7 +249,7 @@ def awards():
 def concentrate():
     concentrates = Concentrate.query,all()
     data = {
-        'concentrates': [concentrate.__dict__ for concentrate in concentrates]
+        [concentrate.__dict__ for concentrate in concentrates]
     }
     return jsonify(data)
 
@@ -255,7 +258,7 @@ def concentrate():
 def creators():
     creators =  Creator.query.all()
     data = {
-        'creators': [creator.__dict__ for creator in creators]
+        [creator.__dict__ for creator in creators]
     }
     return jsonify(data)
 
@@ -264,7 +267,7 @@ def creators():
 def dispensary():
     dispensaries = Dispensary.query.all()
     data = {
-        'dispensaries': [dispensary.__dict__ for dispensary in dispensaries]
+        [dispensary.__dict__ for dispensary in dispensaries]
     }
     return jsonify(data)
 
@@ -273,7 +276,7 @@ def dispensary():
 def strain():
     strains = Strain.query.all()
     data = {
-        'strains': [strain.__dict__ for strain in strains]
+        [strain.__dict__ for strain in strains]
     }
     return jsonify(data)
 
